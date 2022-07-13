@@ -13,6 +13,7 @@
 - Blackout. Enable/disable this in the config or using /blackout ingame.
 - Weather and Time synced across all players.
 - Custom permissions for the commands.
+- Added event to change weather by another script
 
 # Commands
 `/weather <type>` Change the weather type (will fade to the new weather type within 15 seconds).
