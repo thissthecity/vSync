@@ -1,23 +1,9 @@
------------------- change this -------------------
-
-admins = {
-    'steam:110000105959047',
-    --'license:1234975143578921327',
-}
-
 -- Set this to false if you don't want the weather to change automatically every 10 minutes.
 DynamicWeather = true
-
 --------------------------------------------------
 debugprint = false -- don't touch this unless you know what you're doing or you're being asked by Vespura to turn this on.
 --------------------------------------------------
-
-
-
-
-
-
-
+-- Admins are added in a separate file called 'admins.lua'. This is not included with the script
 -------------------- DON'T CHANGE THIS --------------------
 AvailableWeatherTypes = {
     'EXTRASUNNY', 
@@ -36,12 +22,20 @@ AvailableWeatherTypes = {
     'XMAS', 
     'HALLOWEEN',
 }
-CurrentWeather = "EXTRASUNNY"
+local CurrentWeather = "CLEAR"
 local baseTime = 0
 local timeOffset = 0
 local freezeTime = false
 local blackout = false
-local newWeatherTimer = 10
+local newWeatherTimer = 60
+
+RegisterServerEvent('vSync:RemoteWeather')
+AddEventHandler('vSync:RemoteWeather', function(weather, duration, isBlackout)
+    newWeatherTimer = duration
+    blackout = isBlackout
+    TriggerClientEvent('vSync:updateWeather', -1, weather, blackout)
+    TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
+end)
 
 RegisterServerEvent('vSync:requestSync')
 AddEventHandler('vSync:requestSync', function()
@@ -67,12 +61,12 @@ RegisterCommand('freezetime', function(source, args)
         if isAllowedToChange(source) then
             freezeTime = not freezeTime
             if freezeTime then
-                TriggerClientEvent('vSync:notify', source, 'Time is now ~b~frozen~s~.')
+                TriggerClientEvent('vSync:notify', source, 'Tempo está ~b~congelado~s~.')
             else
-                TriggerClientEvent('vSync:notify', source, 'Time is ~y~no longer frozen~s~.')
+                TriggerClientEvent('vSync:notify', source, 'Tempo não está mais ~y~congelado~s~.')
             end
         else
-            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1You are not allowed to use this command.')
+            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Sem permissão para usar esse comando.')
         end
     else
         freezeTime = not freezeTime
@@ -89,12 +83,12 @@ RegisterCommand('freezeweather', function(source, args)
         if isAllowedToChange(source) then
             DynamicWeather = not DynamicWeather
             if not DynamicWeather then
-                TriggerClientEvent('vSync:notify', source, 'Dynamic weather changes are now ~r~disabled~s~.')
+                TriggerClientEvent('vSync:notify', source, 'Tempo dinamico está ~r~desativado~s~.')
             else
-                TriggerClientEvent('vSync:notify', source, 'Dynamic weather changes are now ~b~enabled~s~.')
+                TriggerClientEvent('vSync:notify', source, 'Tempo dinamico está ~b~ativado~s~.')
             end
         else
-            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1You are not allowed to use this command.')
+            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Sem permissão para usar esse comando.')
         end
     else
         DynamicWeather = not DynamicWeather
@@ -110,7 +104,7 @@ RegisterCommand('weather', function(source, args)
     if source == 0 then
         local validWeatherType = false
         if args[1] == nil then
-            print("Invalid syntax, correct syntax is: /weather <weathertype> ")
+            print("Sintaxe incorreta, o correto é: /weather <weathertype> ")
             return
         else
             for i,wtype in ipairs(AvailableWeatherTypes) do
@@ -121,7 +115,7 @@ RegisterCommand('weather', function(source, args)
             if validWeatherType then
                 print("Weather has been updated.")
                 CurrentWeather = string.upper(args[1])
-                newWeatherTimer = 10
+                newWeatherTimer = 60
                 TriggerEvent('vSync:requestSync')
             else
                 print("Invalid weather type, valid weather types are: \nEXTRASUNNY CLEAR NEUTRAL SMOG FOGGY OVERCAST CLOUDS CLEARING RAIN THUNDER SNOW BLIZZARD SNOWLIGHT XMAS HALLOWEEN ")
@@ -141,14 +135,14 @@ RegisterCommand('weather', function(source, args)
                 if validWeatherType then
                     TriggerClientEvent('vSync:notify', source, 'Weather will change to: ~y~' .. string.lower(args[1]) .. "~s~.")
                     CurrentWeather = string.upper(args[1])
-                    newWeatherTimer = 10
+                    newWeatherTimer = 60
                     TriggerEvent('vSync:requestSync')
                 else
                     TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid weather type, valid weather types are: ^0\nEXTRASUNNY CLEAR NEUTRAL SMOG FOGGY OVERCAST CLOUDS CLEARING RAIN THUNDER SNOW BLIZZARD SNOWLIGHT XMAS HALLOWEEN ')
                 end
             end
         else
-            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1You do not have access to that command.')
+            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Sem permissão para usar esse comando.')
             print('Access for command /weather denied.')
         end
     end
@@ -319,7 +313,7 @@ Citizen.CreateThread(function()
             if DynamicWeather then
                 NextWeatherStage()
             end
-            newWeatherTimer = 10
+            newWeatherTimer = 60
         end
     end
 end)
@@ -335,7 +329,7 @@ function NextWeatherStage()
     elseif CurrentWeather == "CLEARING" or CurrentWeather == "OVERCAST" then
         local new = math.random(1,6)
         if new == 1 then
-            if CurrentWeather == "CLEARING" then CurrentWeather = "FOGGY" else CurrentWeather = "RAIN" end
+            if CurrentWeather == "CLEARING" then CurrentWeather = "FOGGY" else CurrentWeather = "CLEAR" end
         elseif new == 2 then
             CurrentWeather = "CLOUDS"
         elseif new == 3 then
@@ -355,7 +349,7 @@ function NextWeatherStage()
     TriggerEvent("vSync:requestSync")
     if debugprint then
         print("[vSync] New random weather type has been generated: " .. CurrentWeather .. ".\n")
-        print("[vSync] Resetting timer to 10 minutes.\n")
+        print("[vSync] Resetting timer to '..newWeatherTimer..' minutes.\n")
     end
 end
 

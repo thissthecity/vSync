@@ -1,4 +1,4 @@
-CurrentWeather = 'EXTRASUNNY'
+local CurrentWeather = 'CLEAR'
 local lastWeather = CurrentWeather
 local baseTime = 0
 local timeOffset = 0

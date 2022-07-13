@@ -5,5 +5,6 @@ client_scripts {
 }
 
 server_scripts {
+    'admins.lua',
     'vs_server.lua',
 }
