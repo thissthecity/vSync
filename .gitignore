@@ -1,4 +1,4 @@
-admins.lua
+*server/admins.lua
 # Compiled Lua sources
 luac.out
 
