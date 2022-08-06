@@ -2,9 +2,9 @@
 
 ### Simple weather and time sync script for FiveM servers.
 
-**Current version:** 1.3.0
+**Current version:** 1.3.1
 **Author:** Vespura
-**Last update:** 01-13-2018
+**Last update:** 08-06-2022
 
 ***
 
@@ -13,7 +13,8 @@
 - Blackout. Enable/disable this in the config or using /blackout ingame.
 - Weather and Time synced across all players.
 - Custom permissions for the commands.
-- Added event to change weather by another script
+- Event to change weather by another script
+- Translation support.
 
 # Commands
 `/weather <type>` Change the weather type (will fade to the new weather type within 15 seconds).
