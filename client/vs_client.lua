@@ -1,3 +1,4 @@
+local lang = getLang("pt-BR")
 local CurrentWeather = 'CLEAR'
 local lastWeather = CurrentWeather
 local baseTime = 0
@@ -68,15 +69,15 @@ AddEventHandler('playerSpawned', function()
 end)
 
 Citizen.CreateThread(function()
-    TriggerEvent('chat:addSuggestion', '/weather', 'Change the weather.', {{ name="weatherType", help="Available types: extrasunny, clear, neutral, smog, foggy, overcast, clouds, clearing, rain, thunder, snow, blizzard, snowlight, xmas & halloween"}})
-    TriggerEvent('chat:addSuggestion', '/time', 'Change the time.', {{ name="hours", help="A number between 0 - 23"}, { name="minutes", help="A number between 0 - 59"}})
-    TriggerEvent('chat:addSuggestion', '/freezetime', 'Freeze / unfreeze time.')
-    TriggerEvent('chat:addSuggestion', '/freezeweather', 'Enable/disable dynamic weather changes.')
-    TriggerEvent('chat:addSuggestion', '/morning', 'Set the time to 09:00')
-    TriggerEvent('chat:addSuggestion', '/noon', 'Set the time to 12:00')
-    TriggerEvent('chat:addSuggestion', '/evening', 'Set the time to 18:00')
-    TriggerEvent('chat:addSuggestion', '/night', 'Set the time to 23:00')
-    TriggerEvent('chat:addSuggestion', '/blackout', 'Toggle blackout mode.')
+    TriggerEvent('chat:addSuggestion', '/weather', lang.sugWeatherDescription, {{ name="weatherType", help=lang.sugWeatherHelp}})
+    TriggerEvent('chat:addSuggestion', '/time', lang.sugTimeDescription, {{ name="hours", help=lang.sugTimeHelp .. "0 - 23"}, { name="minutes", help=lang.sugTimeHelp .. "0 - 59"}})
+    TriggerEvent('chat:addSuggestion', '/freezetime', lang.sugFreezeTimeDescription)
+    TriggerEvent('chat:addSuggestion', '/freezeweather', lang.sugFreezeWeatherDescription)
+    TriggerEvent('chat:addSuggestion', '/morning', lang.sugShift .. '09:00')
+    TriggerEvent('chat:addSuggestion', '/noon', lang.sugShift .. '12:00')
+    TriggerEvent('chat:addSuggestion', '/evening', lang.sugShift .. '18:00')
+    TriggerEvent('chat:addSuggestion', '/night', lang.sugShift .. '23:00')
+    TriggerEvent('chat:addSuggestion', '/blackout', lang.sugBlackout)
 end)
 
 -- Display a notification above the minimap.
