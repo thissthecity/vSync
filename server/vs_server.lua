@@ -2,14 +2,14 @@ local admins = getAdmins()
 local lang = getLang("pt-BR")
 
 -- Set this to false if you don't want the weather to change automatically every 10 minutes.
-DynamicWeather = true
+local DynamicWeather = true
 
 --------------------------------------------------
-debugprint = false -- don't touch this unless you know what you're doing or you're being asked by Vespura to turn this on.
+local debugprint = false -- don't touch this unless you know what you're doing or you're being asked by Vespura to turn this on.
 --------------------------------------------------
 
 -------------------- DON'T CHANGE THIS --------------------
-AvailableWeatherTypes = {
+local AvailableWeatherTypes = {
     'EXTRASUNNY', 
     'CLEAR', 
     'NEUTRAL', 
@@ -34,9 +34,10 @@ local blackout = false
 local newWeatherTimer = 60
 
 RegisterServerEvent('vSync:RemoteWeather')
-AddEventHandler('vSync:RemoteWeather', function(weather, duration, isBlackout)
+AddEventHandler('vSync:RemoteWeather', function(weather, duration, isBlackout, dynamicWeather)
     newWeatherTimer = duration
     blackout = isBlackout
+    DynamicWeather = dynamicWeather
     TriggerClientEvent('vSync:updateWeather', -1, weather, blackout)
     TriggerClientEvent('vSync:updateTime', -1, baseTime, timeOffset, freezeTime)
 end)
@@ -73,9 +74,9 @@ RegisterCommand('freezetime', function(source, args)
     else
         freezeTime = not freezeTime
         if freezeTime then
-            print(lang.printTimeFreeze)
+            print(lang.printTime .. lang.printFreeze)
         else
-            print(lang.printTimeUnfreeze)
+            print(lang.printTime .. lang.printUnfreeze)
         end
     end
 end)
@@ -95,9 +96,9 @@ RegisterCommand('freezeweather', function(source, args)
     else
         DynamicWeather = not DynamicWeather
         if not DynamicWeather then
-            print(lang.printWeatherFreeze)
+            print(lang.printWeather .. lang.printFreeze)
         else
-            print(lang.printWeatherUnfreeze)
+            print(lang.printWeather .. lang.printUnfreeze)
         end
     end
 end)
@@ -106,7 +107,7 @@ RegisterCommand('weather', function(source, args)
     if source == 0 then
         local validWeatherType = false
         if args[1] == nil then
-            print(lang.invalidSyntax)
+            print(lang.errorInvalidSyntax .. lang.syntaxWeather)
             return
         else
             for i,wtype in ipairs(AvailableWeatherTypes) do
@@ -115,7 +116,7 @@ RegisterCommand('weather', function(source, args)
                 end
             end
             if validWeatherType then
-                print("Weather has been updated.")
+                print(lang.printWeatherUpdate)
                 CurrentWeather = string.upper(args[1])
                 newWeatherTimer = 60
                 TriggerEvent('vSync:requestSync')
@@ -127,7 +128,7 @@ RegisterCommand('weather', function(source, args)
         if isAllowedToChange(source) then
             local validWeatherType = false
             if args[1] == nil then
-                TriggerClientEvent('chatMessage', source, '', {255,255,255}, lang.errorInvalidSyntax)
+                TriggerClientEvent('chatMessage', source, '', {255,255,255}, lang.errorInvalidSyntax .. lang.syntaxWeather)
             else
                 for i,wtype in ipairs(AvailableWeatherTypes) do
                     if wtype == string.upper(args[1]) then
@@ -145,7 +146,7 @@ RegisterCommand('weather', function(source, args)
             end
         else
             TriggerClientEvent('chatMessage', source, '', {255,255,255}, lang.errorNotAllowed)
-            print('Access for command /weather denied.')
+            print(lang.errorAcessDenied..'/weather')
         end
     end
 end, false)
@@ -154,17 +155,17 @@ RegisterCommand('blackout', function(source)
     if source == 0 then
         blackout = not blackout
         if blackout then
-            print("Blackout is now enabled.")
+            print(lang.printBlackoutEn)
         else
-            print("Blackout is now disabled.")
+            print(lang.printBlackoutDs)
         end
     else
         if isAllowedToChange(source) then
             blackout = not blackout
             if blackout then
-                TriggerClientEvent('vSync:notify', source, 'Blackout is now ~b~enabled~s~.')
+                TriggerClientEvent('vSync:notify', source, lang.blackoutEn)
             else
-                TriggerClientEvent('vSync:notify', source, 'Blackout is now ~r~disabled~s~.')
+                TriggerClientEvent('vSync:notify', source, lang.blackoutDs)
             end
             TriggerEvent('vSync:requestSync')
         end
@@ -173,49 +174,49 @@ end)
 
 RegisterCommand('morning', function(source)
     if source == 0 then
-        print("For console, use the \"/time <hh> <mm>\" command instead!")
+        print(lang.errorTimeConsole)
         return
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
         ShiftToHour(9)
-        TriggerClientEvent('vSync:notify', source, 'Time set to ~y~morning~s~.')
+        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeMorning..'~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
 RegisterCommand('noon', function(source)
     if source == 0 then
-        print("For console, use the \"/time <hh> <mm>\" command instead!")
+        print(lang.errorTimeConsole)
         return
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
         ShiftToHour(12)
-        TriggerClientEvent('vSync:notify', source, 'Time set to ~y~noon~s~.')
+        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeNoon..'~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
 RegisterCommand('evening', function(source)
     if source == 0 then
-        print("For console, use the \"/time <hh> <mm>\" command instead!")
+        print(lang.errorTimeConsole)
         return
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
         ShiftToHour(18)
-        TriggerClientEvent('vSync:notify', source, 'Time set to ~y~evening~s~.')
+        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeEvening..'~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
 RegisterCommand('night', function(source)
     if source == 0 then
-        print("For console, use the \"/time <hh> <mm>\" command instead!")
+        print(lang.errorTimeConsole)
         return
     end
     if isAllowedToChange(source) then
         ShiftToMinute(0)
         ShiftToHour(23)
-        TriggerClientEvent('vSync:notify', source, 'Time set to ~y~night~s~.')
+        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeNight..'~s~.')
         TriggerEvent('vSync:requestSync')
     end
 end)
@@ -243,10 +244,10 @@ RegisterCommand('time', function(source, args, rawCommand)
             else
                 ShiftToMinute(0)
             end
-            print("Time has changed to " .. argh .. ":" .. argm .. ".")
+            print(lang.timeChange .. argh .. ":" .. argm .. ".")
             TriggerEvent('vSync:requestSync')
         else
-            print("Invalid syntax, correct syntax is: time <hour> <minute> !")
+            print(lang.errorInvalidSyntax .. lang.syntaxTime)
         end
     elseif source ~= 0 then
         if isAllowedToChange(source) then
@@ -270,14 +271,14 @@ RegisterCommand('time', function(source, args, rawCommand)
                 else
                     newtime = newtime .. minute
                 end
-                TriggerClientEvent('vSync:notify', source, 'Time was changed to: ~y~' .. newtime .. "~s~!")
+                TriggerClientEvent('vSync:notify', source, lang.timeChanged..': ~y~' .. newtime .. "~s~!")
                 TriggerEvent('vSync:requestSync')
             else
-                TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1Invalid syntax. Use ^0/time <hour> <minute> ^1instead!')
+                TriggerClientEvent('chatMessage', source, '', {255,255,255}, lang.errorInvalidSyntax .. lang.syntaxTime)
             end
         else
-            TriggerClientEvent('chatMessage', source, '', {255,255,255}, '^8Error: ^1You do not have access to that command.')
-            print('Access for command /time denied.')
+            TriggerClientEvent('chatMessage', source, '', {255,255,255}, lang.errorNotAllowed)
+            print(lang.errorAcessDenied..'/time')
         end
     end
 end)
@@ -350,8 +351,8 @@ function NextWeatherStage()
     end
     TriggerEvent("vSync:requestSync")
     if debugprint then
-        print("[vSync] New random weather type has been generated: " .. CurrentWeather .. ".\n")
-        print("[vSync] Resetting timer to 10 minutes.\n")
+        print("[vSync] "..lang.consoleGenerated..": " .. CurrentWeather .. ".\n")
+        print("[vSync] "..lang.consoleReset"10 "..lang.consoleMinutes)
     end
 end
 
