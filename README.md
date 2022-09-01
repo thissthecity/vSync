@@ -26,3 +26,11 @@
 `/evening` Set the time to evening.
 `/night` Set the time to night.
 `/blackout` Enable/disable blackout mode.
+
+# Events
+`vSync:RemoteWeather` Change the weather type (will fade to the new weather type within 15 seconds).
+Parameters:
+* weather &rarr; the weather type.
+* duration &rarr; the duration in min.
+* isBlackout &rarr; if the blackout is enabled or not.
+* dynamicWeather &rarr; if the weather is allowed to change automatically.
