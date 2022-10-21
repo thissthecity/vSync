@@ -1,12 +1,10 @@
 local admins = getAdmins()
 local lang = getLang("pt-BR")
 
--- Set this to false if you don't want the weather to change automatically every 10 minutes.
+-- The interval in minutes to cycle weather
+local weatherTimerLimit = 60
+-- Set this to false if you don't want the weather to change automatically.
 local DynamicWeather = true
-
---------------------------------------------------
-local debugprint = false -- don't touch this unless you know what you're doing or you're being asked by Vespura to turn this on.
---------------------------------------------------
 
 -------------------- DON'T CHANGE THIS --------------------
 local AvailableWeatherTypes = {
@@ -51,7 +49,7 @@ end)
 function isAllowedToChange(player)
     for i,id in ipairs(admins) do
         for x,pid in ipairs(GetPlayerIdentifiers(player)) do
-            if debugprint then print('admin id: ' .. id .. '\nplayer id:' .. pid) end
+            TriggerEvent("VRP:Debug", string.format("admin id: %s, player id: %s", id, pid), GetCurrentResourceName())
             if string.lower(pid) == string.lower(id) then
                 return true
             end
@@ -172,54 +170,42 @@ RegisterCommand('blackout', function(source)
     end
 end)
 
+RegisterCommand('nexweather', function(source)
+    NextWeatherStage()
+end)
+
 RegisterCommand('morning', function(source)
-    if source == 0 then
-        print(lang.errorTimeConsole)
-        return
-    end
-    if isAllowedToChange(source) then
-        ShiftToMinute(0)
-        ShiftToHour(9)
-        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeMorning..'~s~.')
-        TriggerEvent('vSync:requestSync')
-    end
+    setTimeOfDay(source, 9, 0)
 end)
+
 RegisterCommand('noon', function(source)
-    if source == 0 then
-        print(lang.errorTimeConsole)
-        return
-    end
-    if isAllowedToChange(source) then
-        ShiftToMinute(0)
-        ShiftToHour(12)
-        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeNoon..'~s~.')
-        TriggerEvent('vSync:requestSync')
-    end
+    setTimeOfDay(source, 12, 0)
 end)
+
 RegisterCommand('evening', function(source)
-    if source == 0 then
-        print(lang.errorTimeConsole)
-        return
-    end
-    if isAllowedToChange(source) then
-        ShiftToMinute(0)
-        ShiftToHour(18)
-        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeEvening..'~s~.')
-        TriggerEvent('vSync:requestSync')
-    end
+    setTimeOfDay(source, 18, 0)
 end)
+
 RegisterCommand('night', function(source)
+    setTimeOfDay(source, 23, 0)
+end)
+
+function setTimeOfDay(source, hour, minute)
     if source == 0 then
         print(lang.errorTimeConsole)
         return
     end
     if isAllowedToChange(source) then
-        ShiftToMinute(0)
-        ShiftToHour(23)
-        TriggerClientEvent('vSync:notify', source, lang.timeSet..' ~y~'..lang.timeNight..'~s~.')
+        ShiftToMinute(minute)
+        ShiftToHour(hour)
+        local text = lang.timeMorning
+        if(hour >= 12) then text = lang.timeNoon end
+        if(hour >= 18) then text = lang.timeEvening end
+        if(hour >= 23) then text = lang.timeNight end
+        TriggerClientEvent('vSync:notify', source, string.format("%s ~y~%s~s~.", lang.timeSet, text))
         TriggerEvent('vSync:requestSync')
     end
-end)
+end
 
 function ShiftToMinute(minute)
     timeOffset = timeOffset - ( ( (baseTime+timeOffset) % 60 ) - minute )
@@ -322,9 +308,8 @@ Citizen.CreateThread(function()
 end)
 
 function NextWeatherStage()
-    if CurrentWeather == "CLEAR" or CurrentWeather == "CLOUDS" or CurrentWeather == "EXTRASUNNY"  then
-        local new = math.random(1,2)
-        if new == 1 then
+    if CurrentWeather == "CLEAR" or CurrentWeather == "CLOUDS" or CurrentWeather == "EXTRASUNNY" then
+        if math.random(1,2) == 1 then
             CurrentWeather = "CLEARING"
         else
             CurrentWeather = "OVERCAST"
@@ -332,7 +317,11 @@ function NextWeatherStage()
     elseif CurrentWeather == "CLEARING" or CurrentWeather == "OVERCAST" then
         local new = math.random(1,6)
         if new == 1 then
-            if CurrentWeather == "CLEARING" then CurrentWeather = "FOGGY" else CurrentWeather = "CLEAR" end
+            if CurrentWeather == "CLEARING" then
+                CurrentWeather = "FOGGY"
+            else
+                CurrentWeather = "CLEAR"
+            end
         elseif new == 2 then
             CurrentWeather = "CLOUDS"
         elseif new == 3 then
@@ -350,9 +339,6 @@ function NextWeatherStage()
         CurrentWeather = "CLEAR"
     end
     TriggerEvent("vSync:requestSync")
-    if debugprint then
-        print("[vSync] "..lang.consoleGenerated..": " .. CurrentWeather .. ".\n")
-        print("[vSync] "..lang.consoleReset"10 "..lang.consoleMinutes)
-    end
+    TriggerEvent("VRP:Debug", string.format("%s: %s.", lang.consoleGenerated, CurrentWeather), GetCurrentResourceName())
+    TriggerEvent("VRP:Debug", string.format("%s %s %s", lang.consoleReset, weatherTimerLimit, lang.consoleMinutes), GetCurrentResourceName())
 end
-

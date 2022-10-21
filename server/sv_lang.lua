@@ -34,8 +34,8 @@ local lang = {
         timeChanged = 'Time was changed to',
         
         consoleGenerated = 'New random weather type has been generated',
-        consoleReset = 'Resetting timer to ',
-        consoleMinutes = 'minutes.\n'
+        consoleReset = 'Resetting timer to',
+        consoleMinutes = 'minutes.'
     },
     ["pt-BR"] = {
         errorNotAllowed = '^8Erro: ^1Sem permissão para usar esse comando.',
@@ -72,8 +72,8 @@ local lang = {
         timeChanged = 'Tempo foi mudado para',
 
         consoleGenerated = 'Novo clima randômico foi gerado',
-        consoleReset = 'Resetando tempo para ',
-        consoleMinutes = 'minutos.\n'
+        consoleReset = 'Resetando tempo para',
+        consoleMinutes = 'minutos.'
     }
 }
 
