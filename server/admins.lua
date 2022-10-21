@@ -3,6 +3,6 @@ local admins = {
     --'steam:11000010XXXXXXX',
 }
 
-function getAdins()
+function getAdmins()
     return admins
 end
